@@ -1,0 +1,14 @@
+setup.py
+roi_segment/__init__.py
+roi_segment/augs.py
+roi_segment/config.py
+roi_segment/dataset.py
+roi_segment/infer.py
+roi_segment/model.py
+roi_segment/profiles.py
+roi_segment/train.py
+roi_segment/utils.py
+roi_segment.egg-info/PKG-INFO
+roi_segment.egg-info/SOURCES.txt
+roi_segment.egg-info/dependency_links.txt
+roi_segment.egg-info/top_level.txt

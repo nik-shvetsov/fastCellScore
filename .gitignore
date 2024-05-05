@@ -1,0 +1,9 @@
+# 
+src/src/hover_quant/hover_quant/saved_models/*.pth
+src/src/hover_quant/hover_quant/models/*.pt
+src/src/roi_segment/roi_segment/saved_models/*.pth
+src/src/roi_segment/roi_segment/models/*.pt
+src/src/patch_class/patch_class/saved_models/*.pth
+src/src/patch_class/patch_class/models/*.pt
+#
+.dockerignore
