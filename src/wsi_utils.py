@@ -284,9 +284,23 @@ def extract_slide_info(slide_path):
     for i in range(levels):
         level_dimensions[i] = (ref_slide.get(f'openslide.level[{i}].downsample'), (int(ref_slide.get(f'openslide.level[{i}].width')), int(ref_slide.get(f'openslide.level[{i}].height'))))
 
-    slide_id = str(uuid.uuid4())
-    if 'aperio.ImageID' in ref_slide.get_fields():
-        slide_id = ref_slide.get('aperio.ImageID')
+    slide_id = str(Path(slide_path).stem)
+    if 'aperio.ImageID' in ref_slide.get_fields() and 'aperio.Filename' in ref_slide.get_fields():
+        aperio_id = ref_slide.get('aperio.ImageID')
+        aperio_file_name = ref_slide.get('aperio.Filename')
+
+        if slide_id != aperio_file_name:
+            if f"{aperio_file_name}" in slide_id:
+                if f"{aperio_file_name}." in slide_id:
+                    suffix = f"_{slide_id.split(f'{aperio_file_name}.')[1]}"
+                else:
+                    suffix = f"_{slide_id.split(f'{aperio_file_name}')[1]}"
+                slide_id = f"{aperio_id}{suffix}"
+            else:
+                slide_id = f"{aperio_id}_{slide_id}"
+
+        else:
+            slide_id = aperio_id
 
     file_name = Path(slide_path).stem
     if 'aperio.Filename' in ref_slide.get_fields():
