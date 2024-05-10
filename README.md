@@ -1,6 +1,6 @@
 # Fast TILs estimation in lung cancer WSIs based on semi-stochastic patch sampling
 
-This repository hold the code for the publication: [Link to arxiv](https://arxiv.org/)
+This repository hold the code for the publication: [Link to arxiv](https://arxiv.org/abs/2405.02913)
 
 The easiest way to obtain the whole pipeline with the models is to download container from dockerhub:
 ```
