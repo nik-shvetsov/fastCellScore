@@ -4,8 +4,8 @@ This repository hold the code for the publication: [Link to arxiv](https://arxiv
 
 The easiest way to obtain the whole pipeline with the models is to download container from dockerhub:
 ```
-docker pull nikshv/fastcellscore:1.0
-docker run -it --gpus all nikshv/fastcellscore:1.0
+docker pull nikshv/fastcellscore:1.2
+docker run -it --gpus all nikshv/fastcellscore:1.2
 ```
 ## License
 
