@@ -969,6 +969,7 @@ def generate_tissue_mask(
     binary_threshold=170,
     min_area_threshold=5000,
     border_px=50,
+    ignore_empty=True,
     save_tissue_contour_image=True,
 ):
     slide_info = extract_slide_info(slide_path)
@@ -976,7 +977,6 @@ def generate_tissue_mask(
     extraction_level = 3 if 3 in available_levels else available_levels[-1]
 
     # slide_lowres = extract_slide(slide_path, slide_info, level=extraction_level)
-
     try:
         slide_lowres = extract_slide(
             slide_path, slide_info, level=extraction_level
@@ -988,7 +988,6 @@ def generate_tissue_mask(
         ).numpy()
         slide_lowres = extract_slide(slide_path, slide_info, level=extraction_level - 1)
 
-    #########################
     gray_mask = slide_lowres.colourspace("b-w")
     binary_mask = gray_mask > binary_threshold
 
@@ -1011,12 +1010,16 @@ def generate_tissue_mask(
     for i in range(1, num_labels):
         if stats[i, cv2.CC_STAT_AREA] > min_area_threshold:
             filtered_mask[labels == i] = 255
-    contours, _ = cv2.findContours(
-        filtered_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
-    )
 
-    # # only largest_contour
-    # reference_polygons = {0: max(contours, key=cv2.contourArea).squeeze()}
+    if ignore_empty:
+        contours, hierarchy = cv2.findContours(
+            filtered_mask, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE
+        )
+    else:
+        contours, hierarchy = cv2.findContours(
+            filtered_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )
+        # contours, hierarchy = cv2.findContours(filtered_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
     reference_polygons = {}
     for i, contour in enumerate(contours):
@@ -1026,12 +1029,20 @@ def generate_tissue_mask(
     target_size = slide_info["raw_size"]
 
     l0_polys = scale_polygons_coords(reference_polygons, reference_size, target_size)
+
     mask = np.zeros(
         (slide_info["raw_size"][1], slide_info["raw_size"][0]), dtype=np.uint8
     )
-
-    for poly in l0_polys.values():
-        mask = draw_polygon(mask, poly, fill=True, color=1)
+    
+    if ignore_empty:
+        for idx, poly in l0_polys.items():
+            if hierarchy[0][idx][3] < 0:
+                mask = draw_polygon(mask, poly, fill=True, color=1)
+            else:
+                mask = draw_polygon(mask, poly, fill=True, color=0)
+    else:
+        for poly in l0_polys.values():
+            mask = draw_polygon(mask, poly, fill=True, color=1)
 
     if save_tissue_contour_image:
         binary_mask_color = cv2.cvtColor(filtered_mask, cv2.COLOR_GRAY2BGR)
