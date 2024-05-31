@@ -1108,7 +1108,7 @@ def process_slide(
     if not Path(slide_output_dir).exists():
         Path(slide_output_dir).mkdir(parents=True)
 
-    if proc_params["PTYPE"] in ["ROI", "border"]:
+    if proc_params["PTYPE"] in ["ROI", "border"] or proc_params['CHECK_TUMOR']:
         # Step 1 : run roi_segment model on slide
         logger.info(
             f"({slide_num}) Step 1 aka ROI segmentation uses: {segment_config.PROFILE_ID} profile"
@@ -1123,7 +1123,10 @@ def process_slide(
         s1_polygons = {}
 
     # Step 2: extract patches from slide
-    if s1_polygons == {} and proc_params["PTYPE"] != "rnd":  # empty slide
+    if s1_polygons == {} and proc_params['CHECK_TUMOR']:
+        logger.info(
+            f"({slide_num}) Detected no tumor content, skipping {slide_info['name']}"
+        )
         return (slide_num, slide_info["name"])
 
     logger.info(
@@ -1232,6 +1235,7 @@ if __name__ == "__main__":
             "DEBUG_PLOTS": True,
             "USE_CACHE": True,
             "DETERMINISTIC": True,
+            "CHECK_TUMOR": True,
         }
     )
 
